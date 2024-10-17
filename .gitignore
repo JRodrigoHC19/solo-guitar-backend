@@ -1,6 +1,11 @@
-# Frontend Testings
+
+# Directories
 frontend/
-frontend/*
+venv-guitar/*
+
+
+# Configuration
+config/*
 
 
 # Python
@@ -13,7 +18,7 @@ node_modules/
 
 # Virtual Environment
 venv-guitar/
-venv-guitar/*
+frontend/*
 
 
 # Environment Variables
