@@ -16,6 +16,8 @@ app.use((err, req, res, next) => {
 // Routes
 app.get('/', (req, res) => res.json({ message: 'API is running!' }));
 
+
+// Iniciar el servidor
 sequelize
     .authenticate()
     .then( function () {
