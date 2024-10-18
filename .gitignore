@@ -22,7 +22,7 @@ frontend/*
 
 
 # Environment Variables
-.env*
+*.env*
 
 
 # Excluir archivos de base de datos locales
