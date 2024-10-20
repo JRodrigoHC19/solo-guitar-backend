@@ -23,6 +23,7 @@ frontend/*
 
 # Environment Variables
 *.env*
+*package-lock.json*
 
 
 # Excluir archivos de base de datos locales
