@@ -7,6 +7,8 @@ require('dotenv').config({
 
 
 module.exports = {
+    PUBLIC_KEY: process.env.PUBLIC_KEY.replace(/\\n/g, '\n') || "",
+    PRIVATE_KEY: process.env.PRIVATE_KEY.replace(/\\n/g, '\n') || "",
     HOST: process.env.HOST || '127.0.0.1',
     PORT: process.env.PORT || 3000,
     PSQL_DATABASE: process.env.PSQL_DATABASE || "",
