@@ -1,21 +1,54 @@
-const { User } = require('../models');
+const { User, Client, Company } = require('../models');
+const { sequelize } = require('../database/connection');
 const bcrypt = require('bcryptjs');
 
-// post de creacion de usuario
 const createUser = async function (data) {
+    const transaction = await sequelize.transaction(); // Crear una transacción
     try {
         const hashed_password = await bcrypt.hash(data.password, 10);
-        const new_user = await User.create({...data, password: hashed_password});
+
+        const new_user = await User.create(
+            { ...data, password: hashed_password }, 
+            { transaction }
+        );
+       
         const json_user = new_user.toJSON();
-        return { 
+
+        if (json_user.role === 'cliente') {
+            await Client.create(
+                {
+                    user_id: json_user.id,
+                    date_birth: data.date_birth,
+                    sex: data.sex
+                },
+                { transaction }
+            );
+        } else if (json_user.role === 'empresa') {
+            await Company.create(
+                {
+                    user_id: json_user.id,
+                    country: data.country,
+                    city: data.city,
+                    direction: data.direction,
+                    phones: data.phones,
+                    genres: data.genres
+                },
+                { transaction }
+            );
+        }
+
+        await transaction.commit();
+
+        return {
             id: json_user.id,
             email: json_user.email,
             role: json_user.role
         };
     } catch (error) {
+        await transaction.rollback();
         return { code: -1, msg: error.message };
     }
-}
+};
 
 
 // get del logeo - uso del token publico

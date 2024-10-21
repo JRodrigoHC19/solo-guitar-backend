@@ -1,6 +1,6 @@
 const env = require('./config');
 const { sequelize } = require('./database/connection');
-const { User } = require('./models');
+const { User, Client, Company } = require('./models');
 const express = require('express');
 const routes = require('./routes.js');
 const app = express();

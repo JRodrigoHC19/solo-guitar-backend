@@ -10,7 +10,8 @@ const publicKey = fs.readFileSync('./jwt/public.key', 'utf8');
 
 // Middleware para verificar token
 const verifyToken = (req, res, next) => {
-    const token = req.headers['authorization'];
+    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+
     
     if (!token) {
         return res.status(403).json({ msg: 'Token no proporcionado' });
@@ -35,22 +36,24 @@ const verifyToken = (req, res, next) => {
 
 // Ruta de registro de usuario (POST /register)
 router.post('/register', async (req, res) => {
-    const { email, role } = req.body;
+    const emailExists = await querys.isEmailRegisted(req.body.email);
+    if (emailExists) { return res.status(400).json({ msg: 'Email ya registrado' }) }
+    
+    const newUser = await querys.createUser(req.body);
+    if (newUser.code === -1) { return res.status(500).json({ msg: newUser.msg });}
 
     try {
-        const emailExists = await querys.isEmailRegisted(email);
-        if (emailExists) { return res.status(400).json({ msg: 'Email ya registrado' }) }
-        
-        const newUser = await querys.createUser(req.body);        
-        const json_user = { id: newUser.id, email: email, role: role }; 
+        const json_user = { id: newUser.id, email: req.body.email, role: req.body.role };
         const token = jwt.sign(json_user, privateKey, { expiresIn: '1h', algorithm: 'RS256' });
-        
+
         res.status(200).json({ message: 'OK!', user: json_user, id_token: token });
-        console.log("HTTP POST /api/users/register - OK 200");
+        console.log("HTTP POST /register - OK 200");
     } catch (error) {
         return res.status(500).json({ msg: error.message });
     }
 });
+
+
 
 
 // Ruta de inicio de sesión (POST /login) - usando las credenciales
@@ -67,10 +70,10 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ msg: result.msg });
         }
 
-        // Generar token JWT
-        const token = jwt.sign({ id: result.user.id, role: result.user.role, name: result.user.email }, privateKey, { algorithm: 'RS256', expiresIn: '1h' });
+        const json_user = { id: result.user.id, role: result.user.role, email: result.user.email };
+        const token = jwt.sign(json_user, privateKey, { algorithm: 'RS256', expiresIn: '1h' });
 
-        res.status(200).json({ message: 'OK!', ...result, id_token: token });
+        res.status(200).json({ message: 'OK!', user: json_user, id_token: token });
         console.log("HTTP POST /api/users/login - OK 200");
     } catch (error) {
         res.status(500).json({ msg: 'Error en el servidor' });
