@@ -5,7 +5,7 @@ venv-guitar/*
 
 
 # Configuration
-config/*
+# jwt/*
 
 
 # Python

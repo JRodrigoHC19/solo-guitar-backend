@@ -2,7 +2,7 @@ const env = require('./config');
 const { sequelize } = require('./database/connection');
 const { User } = require('./models');
 const express = require('express');
-const routes = require('./routes');
+const routes = require('./routes.js');
 const app = express();
 
 // Middlewares
@@ -15,7 +15,7 @@ app.use((err, req, res, next) => {
 
 // Routes
 app.get('/', (req, res) => res.json({ message: 'API is running!' }));
-app.use('/auth', routes);
+app.use('/api/users', routes);
 
 sequelize
     .authenticate()

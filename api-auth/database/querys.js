@@ -6,13 +6,14 @@ const createUser = async function (data) {
     try {
         const hashed_password = await bcrypt.hash(data.password, 10);
         const new_user = await User.create({...data, password: hashed_password});
+        const json_user = new_user.toJSON();
         return { 
-            id: new_user.id,
-            email: new_user.email,
-            role: new_user.role
+            id: json_user.id,
+            email: json_user.email,
+            role: json_user.role
         };
     } catch (error) {
-        return { status: -1, msg: error.message };
+        return { code: -1, msg: error.message };
     }
 }
 
@@ -21,10 +22,10 @@ const createUser = async function (data) {
 const getUserByIdAndEmailAndRole = async function (id, email, role) {
     try {
         const user = await User.findOne({ where: { id: id, email: email, role: role } });
-        if (!user) { throw new Error('Invalid email or password') }
+        if (!user) { return { code: 0, msg: "Invalid email or password" } }
         return { user };
     } catch (error) {
-        return { status: -1, msg: error.message };
+        return { code: -1, msg: error.message };
     }
 }
 
@@ -38,7 +39,7 @@ const getUserByEmailAndPassword = async function (email, password) {
         const validPwd = await bcrypt.compare(password, user.password);
         if (!validPwd) { return { code: 1, msg: "constraseña incorrecta!" }}
 
-        json_user = user.toJSON();
+        const json_user = user.toJSON();
         delete json_user.password;
         switch (user.role) {
             case 'cliente':
@@ -54,7 +55,7 @@ const getUserByEmailAndPassword = async function (email, password) {
         return { user: json_user };
     } catch (error) {
         console.error("Error:", error);
-        return { status: -1, msg: error.message };
+        return { code: -1, msg: error.message };
     }
 }
 
@@ -64,7 +65,7 @@ const isEmailRegisted = async function (email) {
         const user = await User.findOne({ where: { email }, attributes: ['id'] });
         return !!user;
     } catch (error) {
-        return { status: -1, msg: error.message };
+        return { code: -1, msg: error.message };
     }
 }
 
